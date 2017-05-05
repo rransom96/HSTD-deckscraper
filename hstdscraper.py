@@ -44,12 +44,10 @@ def cards_in_decks(response):
         deck['{}'.format(cards)] = 2
     for cards in other_cards:
         if cards not in deck.keys():
-            # deck['{}'.format(cards)] = (sum([int(counts) for counts in
-            #                             other_cards[cards]]) // 8)
-            deck['{}'.format(cards)] = math.ceil((sum([int(counts) for counts in
-                                             other_cards[cards]]) //
+            deck['{}'.format(cards)] = round((sum([int(counts) for counts
+                                                       in other_cards[cards]]) /
                                                   len(deck_lists)))
-    print(sum(deck.values()),"/30 cards in deck")
+    print(sum(deck.values()), "/30 cards in deck")
 
     return deck
 
