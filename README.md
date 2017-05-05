@@ -1,1 +1,1 @@
-# HSTD-deck-comparison
+# HSTD-deckscraper
