@@ -34,7 +34,8 @@ def cards_in_decks(response):
                         # If not, add the card name and count into a dictionary as
                         # {card name : [card count]}
                         if card_name in other_cards:
-                            other_cards['{}'.format(card_name)].append(card_count)
+                            other_cards['{}'.format(card_name)]\
+                                .append(card_count)
                         else:
                             other_cards['{}'.format(card_name)] = [card_count]
     # while sum(deck.values()) < 30:
@@ -46,7 +47,7 @@ def cards_in_decks(response):
         if cards not in deck.keys():
             deck['{}'.format(cards)] = round((sum([int(counts) for counts
                                                        in other_cards[cards]]) /
-                                                  len(deck_lists)))
+                                              len(deck_lists)))
     print(sum(deck.values()), "/30 cards in deck")
 
     return deck
@@ -54,10 +55,20 @@ def cards_in_decks(response):
 
 if __name__ == '__main__':
     url = input("Enter a Hearthstone Top Decks Compare URL.")
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except Exception as e:
+        print(e)
+        quit()
     if response.status_code == 200:
         deck_list = cards_in_decks(response)
-        print(deck_list)
+        side_board = [cards for cards in deck_list if deck_list[cards] == 0]
+        deck_list = {card: count for (card, count) in deck_list.items() if card
+                     not in side_board}
+        print("Cards the show up in at least once in at least half of the "
+              "decks: \n", deck_list)
+        if sum(deck_list.values()) < 30:
+            print("Cards that other people are using: \n", side_board)
     else:
-        print("Url could not be downloaded. Url returned a status code of {}")\
-            .format(response.status_code)
+        print("Url could not be downloaded. Url returned a status code of ",
+              response.status_code)
