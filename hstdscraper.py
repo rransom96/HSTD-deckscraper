@@ -1,5 +1,4 @@
 import requests
-import math
 import bs4
 from bs4 import BeautifulSoup
 
@@ -38,19 +37,47 @@ def cards_in_decks(response):
                                 .append(card_count)
                         else:
                             other_cards['{}'.format(card_name)] = [card_count]
-    # while sum(deck.values()) < 30:
     for cards in one_of_every_deck:
         deck['{}'.format(cards)] = 1
     for cards in two_of_every_deck:
         deck['{}'.format(cards)] = 2
     for cards in other_cards:
         if cards not in deck.keys():
-            deck['{}'.format(cards)] = round((sum([int(counts) for counts
+            deck['{}'.format(cards)] = (sum([int(counts) for counts
                                                        in other_cards[cards]]) /
-                                              len(deck_lists)))
-    print(sum(deck.values()), "/30 cards in deck")
-
+                                              len(deck_lists))
     return deck
+
+
+def deck_size(deck):
+    side_board = [cards for cards in deck if round(deck[cards]) == 0]
+    main_deck = {card: count for (card, count) in deck.items() if card
+                 not in side_board}
+
+    if sum(main_deck.values()) > 30:
+        while sum(main_deck.values()) > 30:
+            least_used_card = min(deck, key=deck.get)
+            print(least_used_card)
+            if least_used_card in main_deck:
+                main_deck.pop(least_used_card)
+        for cards in main_deck:
+            main_deck[cards] = round(main_deck[cards])
+        print(sum(main_deck.values()))
+        return main_deck
+    elif round(sum(main_deck.values())) < 30:
+        for cards in main_deck:
+            main_deck[cards] = round(main_deck[cards])
+        print(sum(main_deck.values()))
+        print(
+            "Cards that other people are using (Most used to least used): \n",
+            side_board)
+        return main_deck
+
+    else:
+        for cards in main_deck:
+            main_deck[cards] = round(main_deck[cards])
+        print(sum(main_deck.values()))
+        return main_deck
 
 
 if __name__ == '__main__':
@@ -59,16 +86,11 @@ if __name__ == '__main__':
         response = requests.get(url)
     except Exception as e:
         print(e)
-        quit()
     if response.status_code == 200:
         deck_list = cards_in_decks(response)
-        side_board = [cards for cards in deck_list if deck_list[cards] == 0]
-        deck_list = {card: count for (card, count) in deck_list.items() if card
-                     not in side_board}
+        deck_list = deck_size(deck_list)
         print("Cards the show up in at least once in at least half of the "
-              "decks: \n", deck_list)
-        if sum(deck_list.values()) < 30:
-            print("Cards that other people are using: \n", side_board)
+                "decks: \n", deck_list)
     else:
         print("Url could not be downloaded. Url returned a status code of ",
               response.status_code)
