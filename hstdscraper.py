@@ -53,21 +53,24 @@ def deck_size(deck):
     side_board = [cards for cards in deck if round(deck[cards]) == 0]
     main_deck = {card: count for (card, count) in deck.items() if card
                  not in side_board}
+    rounded_values = []
+    for cards in main_deck:
+        rounded_values.append(round(main_deck[cards]))
 
-    if sum(main_deck.values()) > 30:
-        while sum(main_deck.values()) > 30:
-            least_used_card = min(deck, key=deck.get)
-            print(least_used_card)
+    if sum(rounded_values) > 30:
+        while sum(rounded_values) > 30:
+            least_used_card = min(main_deck, key=main_deck.get)
             if least_used_card in main_deck:
                 main_deck.pop(least_used_card)
+            rounded_values = [round(main_deck[cards]) for cards in main_deck]
         for cards in main_deck:
             main_deck[cards] = round(main_deck[cards])
-        print(sum(main_deck.values()))
+        print(sum(main_deck.values()), "/30 card deck")
         return main_deck
     elif round(sum(main_deck.values())) < 30:
         for cards in main_deck:
             main_deck[cards] = round(main_deck[cards])
-        print(sum(main_deck.values()))
+        print(sum(main_deck.values()), "/30 card deck")
         print(
             "Cards that other people are using (Most used to least used): \n",
             side_board)
@@ -76,7 +79,7 @@ def deck_size(deck):
     else:
         for cards in main_deck:
             main_deck[cards] = round(main_deck[cards])
-        print(sum(main_deck.values()))
+        print(sum(main_deck.values()), "/30 card deck")
         return main_deck
 
 
@@ -90,7 +93,7 @@ if __name__ == '__main__':
         deck_list = cards_in_decks(response)
         deck_list = deck_size(deck_list)
         print("Cards the show up in at least once in at least half of the "
-                "decks: \n", deck_list)
+              "decks: \n", deck_list)
     else:
         print("Url could not be downloaded. Url returned a status code of ",
               response.status_code)
