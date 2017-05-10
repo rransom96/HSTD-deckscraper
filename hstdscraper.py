@@ -1,5 +1,6 @@
 import requests
 import bs4
+import math
 from bs4 import BeautifulSoup
 
 
@@ -68,12 +69,28 @@ def deck_size(deck):
         print(sum(main_deck.values()), "/30 card deck")
         return main_deck
     elif round(sum(main_deck.values())) < 30:
-        for cards in main_deck:
-            main_deck[cards] = round(main_deck[cards])
-        print(sum(main_deck.values()), "/30 card deck")
-        print(
-            "Cards that other people are using (Most used to least used): \n",
-            side_board)
+        while sum(rounded_values) < 30:
+            side_board_to_main = {}
+            for card in side_board:
+                side_board_to_main[card] = deck[card]
+            most_used_card = max(side_board_to_main)
+            counter = 1
+            for cards in main_deck:
+                main_deck[cards] = round(main_deck[cards])
+            print(sum(main_deck.values()), "/30 card deck")
+            for card in side_board_to_main:
+                if side_board_to_main[card] == side_board_to_main[most_used_card]\
+                        and card != most_used_card:
+                    counter += 1
+            if counter == 1:
+                main_deck[most_used_card] = math.ceil(side_board_to_main[most_used_card])
+                rounded_values.append(main_deck[most_used_card])
+            else:
+                print(
+                    "Cards that other people are using "
+                    "(Most used to least used): \n",
+                    side_board)
+                break
         return main_deck
 
     else:
@@ -87,13 +104,13 @@ if __name__ == '__main__':
     url = input("Enter a Hearthstone Top Decks Compare URL.")
     try:
         response = requests.get(url)
+        if response.status_code == 200:
+            deck_list = cards_in_decks(response)
+            deck_list = deck_size(deck_list)
+            print("Cards the show up in at least once in at least half of the "
+                  "decks: \n", deck_list)
+        else:
+            print("Url could not be downloaded. Url returned a status code of ",
+                  response.status_code)
     except Exception as e:
         print(e)
-    if response.status_code == 200:
-        deck_list = cards_in_decks(response)
-        deck_list = deck_size(deck_list)
-        print("Cards the show up in at least once in at least half of the "
-              "decks: \n", deck_list)
-    else:
-        print("Url could not be downloaded. Url returned a status code of ",
-              response.status_code)
